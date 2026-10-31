@@ -34,9 +34,11 @@ if(!digest){
  await digestRef.create(digest);
 }
 // Per-device delivery ledger. At-least-once after ambiguous network failures; notification tag collapses duplicates.
+// A manual smoke test must not consume the scheduled 19:00 delivery.
+const deliveryDate=date+(process.env.GITHUB_EVENT_NAME==='schedule'?'-scheduled':'');
 const tokens=await db.collectionGroup('tokens').limit(500).get();
 for(const tokenDoc of tokens.docs){
- const delivery=db.doc(`deliveries/${date}-${hash(tokenDoc.ref.path)}`);
+ const delivery=db.doc(`deliveries/${deliveryDate}-${hash(tokenDoc.ref.path)}`);
  if((await delivery.get()).exists)continue;
  try{await getMessaging().send({token:tokenDoc.data().token,data:{title:'Tu TechRadar está listo',body:`${digest.articles.length} noticias con fuentes. Tu pausa tecnológica de hoy.`,date},webpush:{headers:{TTL:'86400',Urgency:'normal'}}});await delivery.set({sentAt:FieldValue.serverTimestamp()});}
  catch(error){if(['messaging/registration-token-not-registered','messaging/invalid-registration-token'].includes(error.code))await tokenDoc.ref.delete();else throw error;}
