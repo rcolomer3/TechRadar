@@ -1,6 +1,6 @@
 import {initializeApp} from 'firebase/app';
 import {getAuth,GoogleAuthProvider,signInWithPopup,signOut} from 'firebase/auth';
-import {getFirestore,collection,getDocsFromServer,query,orderBy,limit,where,doc,setDoc,deleteDoc,serverTimestamp} from 'firebase/firestore';
+import {getFirestore,collection,getDocsFromServer,getDocFromServer,query,orderBy,limit,where,doc,setDoc,deleteDoc,serverTimestamp} from 'firebase/firestore';
 import {getMessaging,getToken,deleteToken,isSupported,onMessage} from 'firebase/messaging';
 import type {RadarData,Digest,Update,LaunchEvent} from './models';
 import {firebaseConfig,webPushPublicKey} from './firebase-config';
@@ -43,8 +43,25 @@ export async function loadRadar():Promise<RadarData>{
   throw error;
  }
 }
+export type PushState='enabled'|'disabled'|'blocked'|'unsupported'|'unverified';
+export async function getPushState():Promise<PushState>{
+ if(!configured||!db||!auth?.currentUser)return 'disabled';
+ if(!('Notification' in window)||!('serviceWorker' in navigator)||!window.isSecureContext)return 'unsupported';
+ if(Notification.permission==='denied')return 'blocked';
+ if(Notification.permission!=='granted')return 'disabled';
+ try{
+  const reg=await navigator.serviceWorker.getRegistration(import.meta.env.BASE_URL);
+  if(!reg||!await reg.pushManager.getSubscription())return 'disabled';
+  const hash=localStorage.getItem('radar-token-id');
+  if(!hash||!(/^[a-f0-9]{64}$/).test(hash))return 'disabled';
+  const registration=await getDocFromServer(doc(db,'users',auth.currentUser.uid,'tokens',hash));
+  return registration.exists()?'enabled':'disabled';
+ }catch{return 'unverified';}
+}
+let foregroundUnsubscribe:(()=>void)|undefined;
 export async function enablePush(){
  if(!app||!db||!auth?.currentUser)throw new Error('Inicia sesión con Google para activar avisos.');
+ const ownerUid=auth.currentUser.uid;
  if(!vapidKey)throw new Error('Falta configurar la clave pública VAPID.');
  if(!('Notification' in window)||!window.isSecureContext)throw new Error('Se requiere HTTPS y un navegador con notificaciones.');
  const ios=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
@@ -57,13 +74,16 @@ export async function enablePush(){
  const token=await getToken(messaging,{vapidKey,serviceWorkerRegistration:reg});
  if(!token)throw new Error('No se pudo registrar este dispositivo.');
  const hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(token)))).map(n=>n.toString(16).padStart(2,'0')).join('');
- await setDoc(doc(db,'users',auth.currentUser.uid,'tokens',hash),{token,updatedAt:serverTimestamp()});
+ if(auth.currentUser?.uid!==ownerUid)throw new Error('La sesión ha cambiado. Vuelve a activar los avisos.');
+ await setDoc(doc(db,'users',ownerUid,'tokens',hash),{token,updatedAt:serverTimestamp()});
  localStorage.setItem('radar-token-id',hash);
- onMessage(messaging,()=>window.dispatchEvent(new Event('radar-digest')));
+ foregroundUnsubscribe?.();
+ foregroundUnsubscribe=onMessage(messaging,()=>window.dispatchEvent(new Event('radar-digest')));
 }
 export async function disablePush(){
  if(!app||!db||!auth?.currentUser)throw new Error('Inicia sesión para quitar este dispositivo.');
  const hash=localStorage.getItem('radar-token-id');
  if(hash)await deleteDoc(doc(db,'users',auth.currentUser.uid,'tokens',hash));
  await deleteToken(getMessaging(app));localStorage.removeItem('radar-token-id');
+ foregroundUnsubscribe?.();foregroundUnsubscribe=undefined;
 }
