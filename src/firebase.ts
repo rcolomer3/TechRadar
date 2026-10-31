@@ -27,10 +27,19 @@ export async function login(){
  }
 }
 export const logout=()=>auth?signOut(auth):Promise.resolve();
-export async function loadRadar():Promise<RadarData>{
+async function queryRadar():Promise<RadarData>{
  if(!db)throw new Error('Falta configuración de Firebase.');
  const [d,u,v]=await Promise.all([getDocs(query(collection(db,'digests'),where('status','==','published'),orderBy('date','desc'),limit(60))),getDocs(query(collection(db,'updates'),orderBy('publishedAt','desc'),limit(40))),getDocs(query(collection(db,'events'),where('confirmed','==',true),orderBy('date','asc'),limit(40)))]);
  return {digests:d.docs.map(x=>({...x.data(),id:x.id} as Digest)),updates:u.docs.map(x=>({...x.data(),id:x.id} as Update)),events:v.docs.map(x=>({...x.data(),id:x.id} as LaunchEvent))};
+}
+export async function loadRadar():Promise<RadarData>{
+ try{return await queryRadar();}catch(error){
+  const code=(error as {code?:string}).code;
+  if(code==='failed-precondition')throw new Error('Estamos terminando de preparar el radar. Vuelve a intentarlo dentro de unos minutos.');
+  if(code==='unavailable')throw new Error('No se pudo conectar con el radar. Comprueba tu conexión y vuelve a intentarlo.');
+  if(code==='permission-denied')throw new Error('El radar no puede leer los datos todavía. Revisa el acceso e inténtalo de nuevo.');
+  throw error;
+ }
 }
 export async function enablePush(){
  if(!app||!db||!auth?.currentUser)throw new Error('Inicia sesión con Google para activar avisos.');
