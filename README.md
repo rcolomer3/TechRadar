@@ -1,6 +1,8 @@
+Web: **https://rcolomer3.github.io/TechRadar/** · Acceso con Google mediante Firebase `techradar-4f238`.
+
 # TechRadar
 
-MVP PWA personal independiente. React + Vite + TypeScript; Firestore, Google Authentication y FCM. No depende de WebFinanzas ni BandApp. Repositorio privado independiente: https://github.com/rcolomer3/TechRadar . Firebase y los secretos de publicación aún requieren configuración.
+MVP PWA personal independiente. React + Vite + TypeScript; Firestore, Google Authentication y FCM. No depende de WebFinanzas ni BandApp. Repositorio independiente: https://github.com/rcolomer3/TechRadar . Firebase independiente: `techradar-4f238`. El cliente incluye su configuración pública; la cuenta de servicio del resumen diario sigue pendiente.
 
 ## Arranque
 
@@ -11,7 +13,7 @@ npm install
 npm run dev
 ```
 
-Abre la URL local indicada por Vite. Sin variables Firebase se inicia una demo claramente rotulada: seis tarjetas de interfaz por fecha, sin titulares o eventos ficticios. `npm test` comprueba selección, enlaces, fechas y validación; `npm run build` comprueba TypeScript y genera `dist/`. `npm run preview` sirve esa compilación. PWA necesita HTTPS en producción; localhost es válido para desarrollo.
+Abre la URL local indicada por Vite. El cliente se conecta al proyecto TechRadar por defecto. Con `VITE_DEMO=true` en `.env.local` se inicia una demo claramente rotulada: seis tarjetas de interfaz por fecha, sin titulares o eventos ficticios. `npm test` comprueba selección, enlaces, fechas y validación; `npm run build` comprueba TypeScript y genera `dist/`. `npm run preview` sirve esa compilación. PWA necesita HTTPS en producción; localhost es válido para desarrollo.
 
 ## Interfaz y alcance
 
@@ -104,4 +106,8 @@ La PWA almacena shell y assets visitados para abrirse sin conexión; los datos F
 
 Pruebas unitarias locales no requieren Firebase. La compilación valida tipos. Antes del primer despliegue real, comprobar con Emulator Suite las reglas de dos usuarios (nadie escribe resúmenes, solo el propietario gestiona sus tokens), login en dominio autorizado, indexación, ejecución manual de Actions y recepción push en iOS instalado y escritorio. Sin credenciales estas integraciones no pueden certificarse desde la demo.
 
-No se ha activado facturación ni desplegado Firebase. El código se publica en el repositorio privado rcolomer3/TechRadar. La activación requiere configurar un proyecto independiente y los secretos indicados. Nada de WebFinanzas o BandApp se lee o modifica.
+Firebase: proyecto independiente `techradar-4f238`, Google Authentication habilitado y Firestore Standard en Madrid (`europe-southwest1`), plan Spark sin facturación. La publicación del resumen diario requiere la credencial de servidor indicada. El código se publica en el repositorio público rcolomer3/TechRadar. Nada de WebFinanzas o BandApp se lee o modifica.
+
+## Publicación web automática
+
+GitHub Pages se publica desde `.github/workflows/pages.yml` al actualizar `main`, con la base `/TechRadar/`. Código público autorizado por el propietario; claves privadas y cuentas de servicio siguen excluidas. El proyecto Firebase usa Google Authentication y Firestore en Madrid. Dominio autorizado: `rcolomer3.github.io`. La sesión de Google se conserva en el navegador hasta cerrar sesión. Para ver la demo local, define `VITE_DEMO=true`. El resumen diario y push requieren aún la cuenta de servicio y la clave pública VAPID; publicar el sitio no los activa automáticamente.
