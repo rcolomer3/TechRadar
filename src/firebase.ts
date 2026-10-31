@@ -34,6 +34,7 @@ async function queryRadar():Promise<RadarData>{
 }
 export async function loadRadar():Promise<RadarData>{
  try{return await queryRadar();}catch(error){
+  console.warn('TechRadar: no se pudo consultar Firestore', error);
   const code=(error as {code?:string}).code;
   if(code==='failed-precondition')throw new Error('Estamos terminando de preparar el radar. Vuelve a intentarlo dentro de unos minutos.');
   if(code==='unavailable')throw new Error('No se pudo conectar con el radar. Comprueba tu conexión y vuelve a intentarlo.');
