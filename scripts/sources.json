@@ -1,0 +1,6 @@
+[
+ {"name":"Apple Newsroom","url":"https://www.apple.com/newsroom/rss-feed.rss","hosts":["www.apple.com"],"category":"Apple"},
+ {"name":"Windows Blog","url":"https://blogs.windows.com/feed/","hosts":["blogs.windows.com"],"category":"Microsoft"},
+ {"name":"Firebase Blog","url":"https://firebase.blog/rss.xml","hosts":["firebase.blog"],"category":"Desarrollo"},
+ {"name":"Mozilla Blog","url":"https://blog.mozilla.org/en/feed/","hosts":["blog.mozilla.org"],"category":"Web y privacidad"}
+]
