@@ -1,0 +1,10 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {canonical,selectArticles,madridDate,excerpt,validateCurated} from '../scripts/core.mjs';
+const now=new Date('2026-10-31T18:00:00Z');
+const article={title:'Release example',url:'https://example.com/a?utm_source=rss',summary:'<p>Source text.</p>',publishedAt:now.toISOString(),source:'Test',category:'Test'};
+test('canonicalization removes tracking but keeps meaningful query',()=>assert.equal(canonical('https://example.com/a/?v=2&utm_campaign=x#top'),'https://example.com/a?v=2'));
+test('deduplicates URLs and normalized titles, excludes old/future/invalid dates',()=>{const items=[article,{...article,url:'https://example.com/a'},{...article,url:'https://example.com/b',title:'Release EXAMPLE!'},{...article,title:'Old',publishedAt:'2026-10-01T00:00:00Z'},{...article,title:'Future',publishedAt:'2027-01-01T00:00:00Z'},{...article,title:'Invalid',publishedAt:'invalid'}];assert.equal(selectArticles(items,[],now).length,1);assert.equal(selectArticles([article],[article],now).length,0);});
+test('maximum eight stories and plain short excerpts',()=>{const items=Array.from({length:12},(_,i)=>({...article,title:'Item '+i,url:'https://example.com/'+i}));assert.equal(selectArticles(items,[],now).length,8);assert.equal(excerpt('<p>Hello &amp; world</p>'),'Hello & world');assert.ok(excerpt('long '.repeat(100)).length<=230);});
+test('Madrid dates follow summer and winter offsets',()=>{assert.equal(madridDate(new Date('2026-07-01T22:30:00Z')),'2026-07-02');assert.equal(madridDate(new Date('2026-12-01T22:30:00Z')),'2026-12-01');});
+test('rejects unconfirmed events and unofficial release links',()=>{assert.throws(()=>validateCurated({updates:[],events:[{confirmed:false}]}));assert.throws(()=>validateCurated({updates:[{platform:'iOS',url:'https://example.com'}],events:[]}));assert.deepEqual(validateCurated({updates:[],events:[]}),{updates:[],events:[]});});
