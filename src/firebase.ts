@@ -3,13 +3,29 @@ import {getAuth,GoogleAuthProvider,signInWithPopup,signOut} from 'firebase/auth'
 import {getFirestore,collection,getDocs,query,orderBy,limit,where,doc,setDoc,deleteDoc,serverTimestamp} from 'firebase/firestore';
 import {getMessaging,getToken,deleteToken,isSupported,onMessage} from 'firebase/messaging';
 import type {RadarData,Digest,Update,LaunchEvent} from './models';
+import {firebaseConfig} from './firebase-config';
 const e=import.meta.env;
-const config={apiKey:e.VITE_FIREBASE_API_KEY,authDomain:e.VITE_FIREBASE_AUTH_DOMAIN,projectId:e.VITE_FIREBASE_PROJECT_ID,messagingSenderId:e.VITE_FIREBASE_MESSAGING_SENDER_ID,appId:e.VITE_FIREBASE_APP_ID};
-export const configured=Object.values(config).every(Boolean);
+const config={apiKey:e.VITE_FIREBASE_API_KEY||firebaseConfig.apiKey,authDomain:e.VITE_FIREBASE_AUTH_DOMAIN||firebaseConfig.authDomain,projectId:e.VITE_FIREBASE_PROJECT_ID||firebaseConfig.projectId,messagingSenderId:e.VITE_FIREBASE_MESSAGING_SENDER_ID||firebaseConfig.messagingSenderId,appId:e.VITE_FIREBASE_APP_ID||firebaseConfig.appId};
+export const configured=e.VITE_DEMO!=='true'&&Object.values(config).every(Boolean);
 const app=configured?initializeApp(config):null;
 export const auth=app?getAuth(app):null;
+if(auth)auth.languageCode='es';
 const db=app?getFirestore(app):null;
-export const login=()=>auth?signInWithPopup(auth,new GoogleAuthProvider()):Promise.reject(new Error('Configura Firebase para iniciar sesión.'));
+export async function login(){
+ if(!auth)throw new Error('La demo no inicia sesión. Desactiva VITE_DEMO para conectar con Firebase.');
+ try{return await signInWithPopup(auth,new GoogleAuthProvider());}
+ catch(error){
+  const code=(error as {code?:string}).code;
+  const messages:Record<string,string>={
+   'auth/unauthorized-domain':'Este dominio todavía no está autorizado en Firebase. Abre la dirección oficial de TechRadar.',
+   'auth/operation-not-allowed':'El proveedor Google aún no está habilitado en Firebase Authentication.',
+   'auth/popup-blocked':'El navegador ha bloqueado Google. Permite ventanas emergentes para TechRadar y vuelve a pulsar Entrar.',
+   'auth/popup-closed-by-user':'No se ha terminado el acceso con Google. Puedes volver a intentarlo.',
+   'auth/network-request-failed':'No se pudo conectar con Google. Revisa Internet y abre TechRadar en Safari o Chrome.',
+  };
+  if(code&&messages[code])throw new Error(messages[code]);throw error;
+ }
+}
 export const logout=()=>auth?signOut(auth):Promise.resolve();
 export async function loadRadar():Promise<RadarData>{
  if(!db)throw new Error('Falta configuración de Firebase.');
@@ -25,7 +41,7 @@ export async function enablePush(){
  // Request immediately from the click gesture, before asynchronous capability checks.
  if(await Notification.requestPermission()!=='granted')throw new Error('Permiso no concedido. Puedes cambiarlo en los ajustes del navegador.');
  if(!await isSupported())throw new Error('Este navegador no admite Firebase Messaging.');
- const reg=await navigator.serviceWorker.register('/sw.js');await navigator.serviceWorker.ready;
+ const reg=await navigator.serviceWorker.register(import.meta.env.BASE_URL+'sw.js');await navigator.serviceWorker.ready;
  const messaging=getMessaging(app);
  const token=await getToken(messaging,{vapidKey:e.VITE_FIREBASE_VAPID_KEY,serviceWorkerRegistration:reg});
  if(!token)throw new Error('No se pudo registrar este dispositivo.');
