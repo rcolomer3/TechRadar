@@ -1,0 +1,26 @@
+name: Daily radar
+on:
+  schedule:
+    - cron: '0 19 * * *'
+      timezone: Europe/Madrid
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: daily-radar
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm test
+      - run: npm run collect
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
