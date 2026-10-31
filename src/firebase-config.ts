@@ -7,3 +7,6 @@ export const firebaseConfig = {
  messagingSenderId: '939035467103',
  appId: '1:939035467103:web:988bff072e950458136aea',
 };
+
+// Public VAPID key for browser subscriptions. The private key stays in Firebase.
+export const webPushPublicKey = 'BOnOkJp2Ad4VyWb9_zLdw26IrM_4Iyl_5zzHbw2xoFpmLaYBhbs_zfY8Nbl20JvxstQQ1cRtkiqk0In0xu0ARFk';

@@ -3,8 +3,9 @@ import {getAuth,GoogleAuthProvider,signInWithPopup,signOut} from 'firebase/auth'
 import {getFirestore,collection,getDocsFromServer,query,orderBy,limit,where,doc,setDoc,deleteDoc,serverTimestamp} from 'firebase/firestore';
 import {getMessaging,getToken,deleteToken,isSupported,onMessage} from 'firebase/messaging';
 import type {RadarData,Digest,Update,LaunchEvent} from './models';
-import {firebaseConfig} from './firebase-config';
+import {firebaseConfig,webPushPublicKey} from './firebase-config';
 const e=import.meta.env;
+const vapidKey=e.VITE_FIREBASE_VAPID_KEY||webPushPublicKey;
 const config={apiKey:e.VITE_FIREBASE_API_KEY||firebaseConfig.apiKey,authDomain:e.VITE_FIREBASE_AUTH_DOMAIN||firebaseConfig.authDomain,projectId:e.VITE_FIREBASE_PROJECT_ID||firebaseConfig.projectId,messagingSenderId:e.VITE_FIREBASE_MESSAGING_SENDER_ID||firebaseConfig.messagingSenderId,appId:e.VITE_FIREBASE_APP_ID||firebaseConfig.appId};
 export const configured=e.VITE_DEMO!=='true'&&Object.values(config).every(Boolean);
 const app=configured?initializeApp(config):null;
@@ -44,7 +45,7 @@ export async function loadRadar():Promise<RadarData>{
 }
 export async function enablePush(){
  if(!app||!db||!auth?.currentUser)throw new Error('Inicia sesión con Google para activar avisos.');
- if(!e.VITE_FIREBASE_VAPID_KEY)throw new Error('Falta configurar la clave pública VAPID.');
+ if(!vapidKey)throw new Error('Falta configurar la clave pública VAPID.');
  if(!('Notification' in window)||!window.isSecureContext)throw new Error('Se requiere HTTPS y un navegador con notificaciones.');
  const ios=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
  if(ios&&!matchMedia('(display-mode: standalone)').matches)throw new Error('En iOS 16.4 o posterior: Compartir → Añadir a pantalla de inicio. Abre la app instalada y activa los avisos.');
@@ -53,7 +54,7 @@ export async function enablePush(){
  if(!await isSupported())throw new Error('Este navegador no admite Firebase Messaging.');
  const reg=await navigator.serviceWorker.register(import.meta.env.BASE_URL+'sw.js');await navigator.serviceWorker.ready;
  const messaging=getMessaging(app);
- const token=await getToken(messaging,{vapidKey:e.VITE_FIREBASE_VAPID_KEY,serviceWorkerRegistration:reg});
+ const token=await getToken(messaging,{vapidKey,serviceWorkerRegistration:reg});
  if(!token)throw new Error('No se pudo registrar este dispositivo.');
  const hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(token)))).map(n=>n.toString(16).padStart(2,'0')).join('');
  await setDoc(doc(db,'users',auth.currentUser.uid,'tokens',hash),{token,updatedAt:serverTimestamp()});
