@@ -1,8 +1,5 @@
 // ChatGPT researches and writes editions/*.json. This publisher never generates news.
 import {readFile,mkdir,writeFile} from 'node:fs/promises';
-import {initializeApp,cert} from 'firebase-admin/app';
-import {getFirestore} from 'firebase-admin/firestore';
-import {getMessaging} from 'firebase-admin/messaging';
 import {madridDate,hash,validateCurated} from './core.mjs';
 import {validateEdition,rejectRepeats,editionHash,deliverOnce} from './edition.mjs';
 
@@ -20,6 +17,7 @@ try{
  if(dry){report.status='validated';console.log('Edición validada:',date,edition.articles.length,'noticias completas en español.');}
  else{
   if(!process.env.FIREBASE_SERVICE_ACCOUNT)throw new Error('Falta el secreto FIREBASE_SERVICE_ACCOUNT.');
+  const [{initializeApp,cert},{getFirestore},{getMessaging}]=await Promise.all([import('firebase-admin/app'),import('firebase-admin/firestore'),import('firebase-admin/messaging')]);
   initializeApp({credential:cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT))});const db=getFirestore(),ref=db.doc('digests/'+date);
   const recent=await db.collection('digests').orderBy('date','desc').limit(14).get();
   rejectRepeats(edition.articles,recent.docs.filter(d=>d.id!==date).flatMap(d=>d.data().articles||[]));
