@@ -1,9 +1,21 @@
 name: Daily radar
 on:
+  push:
+    branches: [main]
+    paths: ['editions/*.json']
   schedule:
     - cron: '0 19 * * *'
       timezone: Europe/Madrid
   workflow_dispatch:
+    inputs:
+      date:
+        description: 'Fecha AAAA-MM-DD. Vacío = hoy en Madrid'
+        type: string
+        required: false
+      archive:
+        description: 'Importar edición histórica sin avisar'
+        type: boolean
+        default: false
 permissions:
   contents: read
 concurrency:
@@ -21,6 +33,18 @@ jobs:
           cache: npm
       - run: npm ci --no-audit --no-fund
       - run: npm test
-      - run: npm run collect
+      - name: Validar y publicar la edición de ChatGPT
+        run: node scripts/daily.mjs
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          RADAR_DATE: ${{ inputs.date }}
+          RADAR_ARCHIVE: ${{ inputs.archive }}
+      - name: Informe de publicación
+        if: always()
+        run: |
+          if test -f work/publication-report.json; then
+            echo '### TechRadar' >> "$GITHUB_STEP_SUMMARY"
+            echo '```json' >> "$GITHUB_STEP_SUMMARY"
+            cat work/publication-report.json >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+          fi

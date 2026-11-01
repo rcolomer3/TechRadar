@@ -1,46 +1,56 @@
-import Parser from 'rss-parser';
+// ChatGPT researches and writes editions/*.json. This publisher never generates news.
 import {readFile,mkdir,writeFile} from 'node:fs/promises';
 import {initializeApp,cert} from 'firebase-admin/app';
-import {getFirestore,FieldValue} from 'firebase-admin/firestore';
+import {getFirestore} from 'firebase-admin/firestore';
 import {getMessaging} from 'firebase-admin/messaging';
-import {madridDate,selectArticles,canonical,hash,validateCurated} from './core.mjs';
-const dry=process.argv.includes('--dry-run'),now=new Date(),date=madridDate(now);
-const sources=JSON.parse(await readFile(new URL('./sources.json',import.meta.url),'utf8'));
-const curated=validateCurated(JSON.parse(await readFile(new URL('./curated.json',import.meta.url),'utf8')));
-let db;
-if(!dry){if(!process.env.FIREBASE_SERVICE_ACCOUNT)throw new Error('Missing FIREBASE_SERVICE_ACCOUNT GitHub secret. Use --dry-run locally.');initializeApp({credential:cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT))});db=getFirestore();}
-// Editorial records are independent of whether today's feeds contain fresh stories.
-if(db)for(const kind of ['updates','events'])for(const item of curated[kind])await db.collection(kind).doc(hash(item.url)).set(item);
-const digestRef=db?.doc('digests/'+date);
-const existing=digestRef?await digestRef.get():null;
-// Resume sending after a publication failure without changing an already published digest.
-let digest=existing?.exists?existing.data():null;
-if(!digest){
- const parser=new Parser({timeout:15000,headers:{'User-Agent':'TechRadar/0.1 personal daily digest'}});
- const results=await Promise.allSettled(sources.map(async source=>{
-  const feed=await parser.parseURL(source.url);
-  return feed.items.flatMap(item=>{try{const url=canonical(item.link);if(!source.hosts.includes(new URL(url).hostname)||!item.title||!item.isoDate)return [];return [{title:item.title,url,source:source.name,publishedAt:new Date(item.isoDate).toISOString(),category:source.category,summary:item.contentSnippet||item.summary||item.title}];}catch{return [];}});
- }));
- const failed=results.flatMap((r,i)=>r.status==='rejected'?[sources[i].name]:[]);
- if(failed.length)console.warn('Unavailable sources:',failed.join(', '));
- if(failed.length===sources.length)throw new Error('All sources failed; no digest published.');
- const recent=db?await db.collection('digests').orderBy('date','desc').limit(7).get():null;
- const seen=recent?.docs.flatMap(d=>d.data().articles||[])||[];
- const articles=selectArticles(results.flatMap(r=>r.status==='fulfilled'?r.value:[]),seen,now);
- if(!articles.length){console.log('No new verified articles; nothing published.');process.exit(0);}
- digest={date,publishedAt:now.toISOString(),articles,status:'published',summaryMethod:'extractive-source-language',sourceFailures:failed,belowTarget:articles.length<5};
- if(digest.belowTarget)console.warn('Fewer than five verified items. Never padding with invented news.');
- if(dry){await mkdir('work',{recursive:true});await writeFile('work/digest-preview.json',JSON.stringify({digest,curated},null,2));console.log(`Dry run: ${articles.length} items. See work/digest-preview.json`);process.exit(0);}
- await digestRef.create(digest);
-}
-// Per-device delivery ledger. At-least-once after ambiguous network failures; notification tag collapses duplicates.
-// A manual smoke test must not consume the scheduled 19:00 delivery.
-const deliveryDate=date+(process.env.GITHUB_EVENT_NAME==='schedule'?'-scheduled':'');
-const tokens=await db.collectionGroup('tokens').limit(500).get();
-for(const tokenDoc of tokens.docs){
- const delivery=db.doc(`deliveries/${deliveryDate}-${hash(tokenDoc.ref.path)}`);
- if((await delivery.get()).exists)continue;
- try{await getMessaging().send({token:tokenDoc.data().token,data:{title:'Tu TechRadar está listo',body:`${digest.articles.length} noticias con fuentes. Tu pausa tecnológica de hoy.`,date},webpush:{headers:{TTL:'86400',Urgency:'normal'}}});await delivery.set({sentAt:FieldValue.serverTimestamp()});}
- catch(error){if(['messaging/registration-token-not-registered','messaging/invalid-registration-token'].includes(error.code))await tokenDoc.ref.delete();else throw error;}
-}
-console.log(`Published ${date}: ${digest.articles.length} articles; ${tokens.size} devices processed.`);
+import {madridDate,hash,validateCurated} from './core.mjs';
+import {validateEdition,rejectRepeats,editionHash,deliverOnce} from './edition.mjs';
+
+const now=new Date(),today=madridDate(now),date=process.env.RADAR_DATE||today;
+const dry=process.argv.includes('--dry-run'),archive=process.env.RADAR_ARCHIVE==='true';
+if(!/^\d{4}-\d{2}-\d{2}$/.test(date))throw new Error('Fecha no válida.');
+const report={date,mode:dry?'validation':archive?'archive':'publication'};
+await mkdir('work',{recursive:true});
+try{
+ let input;try{input=JSON.parse(await readFile(new URL(`../editions/${date}.json`,import.meta.url),'utf8'));}
+ catch(error){if(error.code==='ENOENT')throw new Error('ChatGPT todavía no ha entregado una edición para '+date+'. No se publican extractos RSS ni se envían avisos.');throw error;}
+ const edition=validateEdition(input,date),contentHash=editionHash(edition);
+ report.articles=edition.articles.length;
+ if(date>today||date<today&&!archive)throw new Error('Una edición histórica requiere el modo de archivo; no se puede publicar una fecha futura.');
+ if(dry){report.status='validated';console.log('Edición validada:',date,edition.articles.length,'noticias completas en español.');}
+ else{
+  if(!process.env.FIREBASE_SERVICE_ACCOUNT)throw new Error('Falta el secreto FIREBASE_SERVICE_ACCOUNT.');
+  initializeApp({credential:cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT))});const db=getFirestore(),ref=db.doc('digests/'+date);
+  const recent=await db.collection('digests').orderBy('date','desc').limit(14).get();
+  rejectRepeats(edition.articles,recent.docs.filter(d=>d.id!==date).flatMap(d=>d.data().articles||[]));
+  const hour=Number(new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Madrid',hour:'2-digit',hourCycle:'h23'}).format(now));
+  if(date===today&&hour<19){
+   await db.doc('drafts/'+date).set({...edition,contentHash,status:'ready',preparedAt:now.toISOString()});report.status='ready';
+   console.log('Edición validada y preparada para las 19:00 de Madrid. Sin publicación ni avisos anticipados.');
+  }else{
+   const digest={...edition,contentHash,status:'published',publishedAt:now.toISOString()};
+   await db.runTransaction(async tx=>{
+    const existing=await tx.get(ref);
+    if(existing.exists){
+     if(existing.data().contentHash===contentHash)return;
+     if(existing.data().editorialVersion===2)throw new Error('La edición ya publicada es inmutable. No se sobrescribe ni reenvía.');
+     // Keep legacy excerpts intact as a revision when correcting the former format.
+     tx.set(db.doc('digestRevisions/'+date+'-legacy'),existing.data());
+    }
+    tx.set(ref,digest);
+   });
+   report.status='published';report.notifications={accepted:0,skipped:0,invalid:0,uncertain:0};
+   if(!archive){
+    const tokens=await db.collectionGroup('tokens').limit(501).get();
+    if(tokens.size>500)throw new Error('Más de 500 dispositivos: se requiere paginación antes de notificar.');
+    const messaging=getMessaging();
+    for(const tokenDoc of tokens.docs){const result=await deliverOnce({db,messaging,tokenDoc,date,articles:edition.articles.length});report.notifications[result]++;}
+    if(report.notifications.uncertain)throw new Error('Resultado incierto de un envío; no se reintenta automáticamente para evitar duplicados.');
+   }
+   console.log('Edición publicada:',date,edition.articles.length,'noticias. Avisos aceptados:',report.notifications.accepted);
+  }
+  const curated=validateCurated(JSON.parse(await readFile(new URL('./curated.json',import.meta.url),'utf8')));
+  for(const kind of ['updates','events'])for(const item of curated[kind])await db.collection(kind).doc(hash(item.url)).set(item);
+ }
+}catch(error){report.status='failed';report.error=error.message;console.error(error.message);process.exitCode=1;}
+finally{await writeFile('work/publication-report.json',JSON.stringify(report,null,2));}
