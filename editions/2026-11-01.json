@@ -1,0 +1,116 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-01",
+  "language": "es",
+  "producer": "chatgpt",
+  "articles": [
+    {
+      "storyKey": "apple-intelligence-china-ios-27-3",
+      "category": "Apple",
+      "title": "Apple Intelligence llegará a China con iOS 27.3, pero sin la nueva Siri",
+      "sentences": [
+        "Apple llevará Apple Intelligence al mercado chino con la beta de iOS 27.3 prevista para el 4 de noviembre.",
+        "El despliegue incluirá resúmenes de notificaciones, traducción en tiempo real, herramientas de escritura, inteligencia visual y borrado de objetos en fotos.",
+        "La nueva Siri basada en IA no formará parte de esta primera fase.",
+        "Apple también ha trabajado con Alibaba para integrar Qwen en algunas experiencias, en un movimiento adaptado a los requisitos del mercado chino."
+      ],
+      "sources": [
+        {
+          "name": "The Verge",
+          "url": "https://www.theverge.com/tech/1023974/apple-intelligence-china-ios-27-3",
+          "publishedAt": "2026-10-30T22:32:00Z"
+        }
+      ]
+    },
+    {
+      "storyKey": "google-project-suncatcher-gemma-4-orbit",
+      "category": "Inteligencia artificial",
+      "title": "Google ejecuta Gemma 4 en órbita dentro de Project Suncatcher",
+      "sentences": [
+        "Google ha conseguido arrancar en órbita los TPU de su satélite experimental Project Suncatcher y ejecutar allí el modelo Gemma 4.",
+        "El sistema recibió una instrucción desde tierra y devolvió una respuesta completa generada por la IA.",
+        "La compañía probará ahora el comportamiento de los chips frente a radiación y estrés térmico.",
+        "Si las pruebas avanzan según lo previsto, Google quiere lanzar dos satélites interconectados en 2027 para ensayar cargas de trabajo distribuidas en el espacio."
+      ],
+      "sources": [
+        {
+          "name": "The Verge",
+          "url": "https://www.theverge.com/tech/1023528/google-project-suncatcher-ai-satellite-transmission",
+          "publishedAt": "2026-10-30T18:21:00Z"
+        }
+      ]
+    },
+    {
+      "storyKey": "ai-crawler-policy-token-robots-txt",
+      "category": "Tecnología",
+      "title": "OpenAI, Google, Microsoft y Anthropic respaldan un control común para el rastreo de IA",
+      "sentences": [
+        "OpenAI, Google, Microsoft y Anthropic han respaldado una propuesta para que los propietarios de webs indiquen sus preferencias de rastreo de IA mediante una señal común en robots.txt.",
+        "La iniciativa busca evitar que cada editor tenga que configurar reglas distintas para cada empresa.",
+        "Anthropic ya admite la señal, mientras que OpenAI prevé incorporarla en los próximos meses y Google y Microsoft durante 2027.",
+        "El estándar pretende dar a los editores un control más claro sobre el uso de sus contenidos para entrenamiento y otras funciones de IA."
+      ],
+      "sources": [
+        {
+          "name": "The Verge",
+          "url": "https://www.theverge.com/tech/1023763/openai-google-microsoft-ai-scraping-standard-opt-out",
+          "publishedAt": "2026-10-30T20:26:00Z"
+        }
+      ]
+    },
+    {
+      "storyKey": "foxconn-openai-new-ai-hardware-collaboration",
+      "category": "Tecnología",
+      "title": "Foxconn prepara una nueva colaboración con OpenAI centrada en infraestructura de IA",
+      "sentences": [
+        "Foxconn ha confirmado que trabaja en una nueva colaboración con OpenAI después de una reunión entre su presidente, Young Liu, y Sam Altman.",
+        "Las compañías no han detallado todavía el alcance del acuerdo y han indicado que habrá un anuncio cuando los términos estén cerrados.",
+        "El proyecto ampliaría la relación iniciada en 2025 para diseñar racks, componentes y otro hardware para centros de datos de inteligencia artificial.",
+        "Foxconn, uno de los mayores fabricantes mundiales de servidores de IA, está aumentando su capacidad en Estados Unidos ante el crecimiento de esta demanda."
+      ],
+      "sources": [
+        {
+          "name": "Reuters",
+          "url": "https://www.reuters.com/world/china/foxconn-working-new-tie-up-with-openai-says-there-is-no-ai-bubble-2026-10-30/",
+          "publishedAt": "2026-10-30T08:38:00Z"
+        }
+      ]
+    },
+    {
+      "storyKey": "cursor-claude-code-extension-supply-chain-attack",
+      "category": "Seguridad",
+      "title": "Una extensión falsa de Claude Code en Cursor intentó instalar una puerta trasera SSH",
+      "sentences": [
+        "Microsoft ha analizado una copia manipulada de la extensión Claude Code que estuvo disponible durante varias horas en el marketplace de Cursor el 29 de octubre.",
+        "El código malicioso intentaba añadir una clave SSH controlada por el atacante, habilitar acceso remoto, crear un túnel inverso y mantener persistencia en el equipo.",
+        "Microsoft y Cursor indican que el incidente quedó limitado al marketplace de Cursor y que las versiones oficiales de Anthropic en otros canales no fueron comprometidas.",
+        "Los usuarios que instalaron las versiones afectadas deben revisar sus equipos, eliminar los artefactos maliciosos y rotar credenciales si existe evidencia de exposición."
+      ],
+      "sources": [
+        {
+          "name": "Microsoft Security Blog",
+          "url": "https://www.microsoft.com/en-us/security/blog/2026/10/30/inside-malicious-claude-code-branded-cursor-extension-persistent-ssh-backdoor/",
+          "publishedAt": "2026-10-30T00:00:00Z"
+        }
+      ]
+    },
+    {
+      "storyKey": "binance-6-3b-hack-withdrawals-resume",
+      "category": "Seguridad",
+      "title": "Binance reanuda retiradas tras cubrir la mayor parte del robo de 6.300 millones de dólares",
+      "sentences": [
+        "Binance ha reanudado las retiradas de bitcoin después de cubrir el 95 % de los 6.300 millones de dólares en criptoactivos sustraídos de su plataforma.",
+        "La primera fase incluye 15 activos y la compañía afirma haber usado fondos propios para recomprar unos 6.000 millones de dólares en tokens.",
+        "El FBI atribuye el ataque al grupo norcoreano TraderTraitor, aunque la investigación internacional continúa.",
+        "El incidente se ha convertido en uno de los mayores robos digitales conocidos y vuelve a poner el foco en la seguridad operativa de las grandes plataformas de criptomonedas."
+      ],
+      "sources": [
+        {
+          "name": "Reuters",
+          "url": "https://www.reuters.com/legal/government/binance-resumes-bitcoin-withdrawals-after-covering-bulk-stolen-63-billion-2026-11-01/",
+          "publishedAt": "2026-11-01T06:49:00Z"
+        }
+      ]
+    }
+  ]
+}
