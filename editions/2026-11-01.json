@@ -41,20 +41,20 @@
       ]
     },
     {
-      "storyKey": "ai-crawler-policy-token-robots-txt",
-      "category": "Tecnología",
-      "title": "OpenAI, Google, Microsoft y Anthropic respaldan un control común para el rastreo de IA",
+      "storyKey": "apple-ai-product-philosophy-john-ternus-october-2026",
+      "category": "Apple",
+      "title": "Apple defiende una integración de IA menos visible en sus productos",
       "sentences": [
-        "OpenAI, Google, Microsoft y Anthropic han respaldado una propuesta para que los propietarios de webs indiquen sus preferencias de rastreo de IA mediante una señal común en robots.txt.",
-        "La iniciativa busca evitar que cada editor tenga que configurar reglas distintas para cada empresa.",
-        "Anthropic ya admite la señal, mientras que OpenAI prevé incorporarla en los próximos meses y Google y Microsoft durante 2027.",
-        "El estándar pretende dar a los editores un control más claro sobre el uso de sus contenidos para entrenamiento y otras funciones de IA."
+        "El CEO de Apple, John Ternus, ha defendido que la compañía no quiere añadir inteligencia artificial solo por seguir la tendencia del sector.",
+        "En una entrevista reciente explicó que Apple seguirá usando IA cuando mejore de forma clara la experiencia, aunque el usuario no tenga que pensar en qué tecnología hay detrás.",
+        "También reconoció que los agentes podrían simplificar tareas y cambiar la forma de usar aplicaciones, pero insistió en que el diseño de productos seguirá siendo una actividad profundamente humana.",
+        "La posición ayuda a explicar por qué Apple está priorizando funciones integradas en sus dispositivos frente a lanzar un chatbot independiente como eje de su estrategia."
       ],
       "sources": [
         {
-          "name": "The Verge",
-          "url": "https://www.theverge.com/tech/1023763/openai-google-microsoft-ai-scraping-standard-opt-out",
-          "publishedAt": "2026-10-30T20:26:00Z"
+          "name": "TechCrunch",
+          "url": "https://techcrunch.com/2026/10/31/apple-ceo-says-the-company-doesnt-want-to-ship-ai-for-ais-sake/",
+          "publishedAt": "2026-10-31T21:41:00Z"
         }
       ]
     },
@@ -77,20 +77,20 @@
       ]
     },
     {
-      "storyKey": "cursor-claude-code-extension-supply-chain-attack",
-      "category": "Seguridad",
-      "title": "Una extensión falsa de Claude Code en Cursor intentó instalar una puerta trasera SSH",
+      "storyKey": "openai-reported-funding-target-cut-october-2026",
+      "category": "Inteligencia artificial",
+      "title": "OpenAI habría reducido a 20.000 millones de dólares el objetivo de su nueva ronda",
       "sentences": [
-        "Microsoft ha analizado una copia manipulada de la extensión Claude Code que estuvo disponible durante varias horas en el marketplace de Cursor el 29 de octubre.",
-        "El código malicioso intentaba añadir una clave SSH controlada por el atacante, habilitar acceso remoto, crear un túnel inverso y mantener persistencia en el equipo.",
-        "Microsoft y Cursor indican que el incidente quedó limitado al marketplace de Cursor y que las versiones oficiales de Anthropic en otros canales no fueron comprometidas.",
-        "Los usuarios que instalaron las versiones afectadas deben revisar sus equipos, eliminar los artefactos maliciosos y rotar credenciales si existe evidencia de exposición."
+        "OpenAI habría rebajado el objetivo de su nueva ronda de financiación desde unos 30.000 millones de dólares hasta 20.000 millones, según informaciones citadas por TechCrunch.",
+        "The Financial Times señala que el primer cierre podría quedar por debajo de esa cifra, mientras que The Wall Street Journal sitúa en unos 11.000 millones lo captado hasta ahora.",
+        "La operación seguiría estando liderada por inversores de Emiratos Árabes Unidos y podría complementarse después con una oferta para grandes patrimonios.",
+        "El ajuste llega en un momento en que los inversores están examinando con más cautela el enorme gasto en centros de datos y capacidad de cómputo para inteligencia artificial."
       ],
       "sources": [
         {
-          "name": "Microsoft Security Blog",
-          "url": "https://www.microsoft.com/en-us/security/blog/2026/10/30/inside-malicious-claude-code-branded-cursor-extension-persistent-ssh-backdoor/",
-          "publishedAt": "2026-10-30"
+          "name": "TechCrunch",
+          "url": "https://techcrunch.com/2026/10/31/openai-reportedly-lowers-funding-target-for-new-round/",
+          "publishedAt": "2026-10-31T16:12:00Z"
         }
       ]
     },
