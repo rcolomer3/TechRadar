@@ -1,78 +1,113 @@
+Web: **https://rcolomer3.github.io/TechRadar/** · Acceso con Google mediante Firebase `techradar-4f238`.
+
 # TechRadar
 
-PWA personal React/Vite + Firebase + GitHub Pages. Conserva Google Authentication, apariencia, Updates, Eventos y el historial. No modifica MiBanda ni WebFinanzas.
+MVP PWA personal independiente. React + Vite + TypeScript; Firestore, Google Authentication y FCM. No depende de WebFinanzas ni BandApp. Repositorio independiente: https://github.com/rcolomer3/TechRadar . Firebase independiente: `techradar-4f238`. El cliente incluye su configuración pública; la cuenta de servicio del resumen diario sigue pendiente.
 
-## Noticias: criterio editorial
+## Arranque
 
-Referencia de estilo: tarea «Programar novedades tecnológicas». Prioriza novedades útiles de Apple, inteligencia artificial, tecnología, lanzamientos confirmados y seguridad. Cada noticia se lee completa en su tarjeta: categoría, titular propio, 4–5 frases en español y fuente; el enlace original es secundario.
-
-1. Recopila 12 RSS de medios y fuentes oficiales (`scripts/sources.json`), acepta solo HTTPS y hosts permitidos y mide errores/cobertura por fuente.
-2. Extrae el contenido del RSS o del artículo público con Readability, sin ejecutar scripts ni saltar muros de pago. No resume solo titulares. Excluye documentos sin contenido suficiente y noticias de más de 48 horas.
-3. Crea una lista por relevancia y diversidad. El modelo selecciona acontecimientos importantes, considerando las últimas 14 ediciones para evitar repetir noticias, además de URL canónica, titular original y tema.
-4. Un modelo abierto local redacta en español y respalda el resumen con evidencias del documento. Una segunda revisión del modelo comprueba respaldo, idioma y ausencia de relleno. Hay controles independientes de extensión, idioma, números, citas y duplicados. Estos controles reducen errores, pero no garantizan exactitud total ni equivalencia con ChatGPT.
-5. Solo una edición de **5–8 noticias completas y al menos tres fuentes** pasa a `drafts/AAAA-MM-DD`. Nunca se publica un titular en inglés o una edición de una noticia como resumen completo. Si no hay cobertura suficiente, el trabajo falla, registra el motivo y conserva el historial; no inventa contenido ni avisa de una edición inexistente.
-
-Las ediciones antiguas se conservan y se identifican en la interfaz como extractos del formato anterior.
-
-## Horario y avisos
-
-Workflow `.github/workflows/daily.yml`, zona `Europe/Madrid`, con cambios de horario automáticos:
-
-- 18:00: recopilar, redactar y validar un borrador privado. Se adelanta la preparación porque el modelo usa CPU.
-- 19:00: validar otra vez y publicar atómicamente en `digests/AAAA-MM-DD`, después enviar el aviso.
-- GitHub puede retrasar ejecuciones; no hay garantía del minuto exacto. Si el borrador no está listo, no se envía un aviso falso.
-
-Un registro por fecha/dispositivo se reserva **antes** de enviar a FCM y se comparte entre ejecuciones manuales y programadas. Reintentos no envían un segundo aviso. Ante un error de red ambiguo se registra `uncertain` y no se reintenta automáticamente: se prioriza evitar duplicados, con el riesgo de perder ese aviso. FCM aceptado no demuestra recepción física. El service worker abre `?edition=AAAA-MM-DD`; una notificación antigua abre directamente esa edición en Anteriores.
-
-El historial se conserva en Firestore. La interfaz carga las 60 últimas ediciones; aún no hay paginación para fechas más antiguas.
-
-## Coste y credenciales
-
-No se necesita una API de IA de pago ni una clave adicional para el modo configurado. GitHub Actions ejecuta Ollama y `qwen2.5:7b` en el propio runner estándar Linux del repositorio público; se descarga el modelo en cada preparación, sin cache de pago. No se usa Ollama Cloud. Es más lento y de menor capacidad que ChatGPT: revisar el resultado real antes de dar por buena su calidad. No se promete generar suficiente contenido todos los días.
-
-Requisitos existentes:
-
-- Repositorio **público** y runner **estándar** `ubuntu-latest` para mantener la gratuidad de Actions y Pages. No convertirlo en privado sin revisar cuotas.
-- Firebase plan Spark sin facturación: Firestore, Google Authentication y FCM. Agotar una cuota gratuita puede detener el servicio.
-- Secreto cifrado de Actions `FIREBASE_SERVICE_ACCOUNT`, ya configurado en el repositorio. Nunca poner el JSON de la cuenta de servicio en Git, en `.env` del frontend ni en un artefacto.
-- La configuración pública de Firebase y VAPID está en `src/firebase-config.ts`; los valores `VITE_*` pueden sobrescribirla. Estas claves públicas no sustituyen las reglas de seguridad.
-
-Para una calidad comparable a ChatGPT sería necesario evaluar un modelo más potente. Una API comercial exige una clave privada del proveedor en Actions y autorización expresa de presupuesto; la suscripción de ChatGPT no se utiliza como API. No hay activado ningún servicio de pago.
-
-Referencias: https://docs.github.com/en/actions/reference/runners/github-hosted-runners , https://ollama.com/library/qwen2.5:7b , https://docs.ollama.com/capabilities/structured-outputs , https://firebase.google.com/pricing .
-
-## Ejecutar y validar
+Node 22.12 o posterior (22 LTS recomendado).
 
 ```sh
-npm ci
+npm install
 npm run dev
-npm test
-npm run build
 ```
 
-Firebase está configurado para el proyecto `techradar-4f238`. Para ver ejemplos de interfaz sin iniciar sesión: `VITE_DEMO=true` en `.env.local`. Las tarjetas de demostración se identifican y no contienen noticias ficticias.
+Abre la URL local indicada por Vite. El cliente se conecta al proyecto TechRadar por defecto. Con `VITE_DEMO=true` en `.env.local` se inicia una demo claramente rotulada: seis tarjetas de interfaz por fecha, sin titulares o eventos ficticios. `npm test` comprueba selección, enlaces, fechas y validación; `npm run build` comprueba TypeScript y genera `dist/`. `npm run preview` sirve esa compilación. PWA necesita HTTPS en producción; localhost es válido para desarrollo.
 
-Generación local opcional con Ollama instalado y el modelo descargado:
+## Interfaz y alcance
+
+- Hoy: edición correspondiente al día de Madrid, hasta ocho noticias y filtros por categoría. Nunca se presenta ayer como hoy en modo real.
+- Anteriores: selector de fecha (las 60 ediciones más recientes).
+- Updates: iOS, macOS, Windows y Synology. Datos verificados mediante revisión de fuentes oficiales.
+- Eventos: solo fechas confirmadas por la organización. Rumores excluidos.
+- Estados de carga, vacío, error con reintento y aviso sin conexión. Navegación móvil inferior y escritorio lateral.
+- Google es necesario para suscribir dispositivos; los resúmenes publicados son públicos. Firestore no se usa como almacén de información privada.
+
+## Firebase: configuración explícita
+
+1. Crea un proyecto independiente en Firebase con plan **Spark**. No habilites facturación ni Cloud Functions. Firestore, Authentication con Google y FCM bastan para este MVP. Verifica las cuotas actuales en https://firebase.google.com/pricing . Spark evita cargos de uso; al alcanzar cuotas puede interrumpirse el servicio. GitHub Actions tiene cuotas propias, especialmente en repositorios privados.
+2. Registra una app web, crea Firestore (elige región europea antes de crearlo), activa proveedor Google en Authentication y configura dominios autorizados: localhost y tu dominio HTTPS final.
+3. Copia `.env.example` a `.env.local` y completa las cinco propiedades públicas del SDK. La clave VAPID pública de TechRadar ya está incluida en `src/firebase-config.ts`. La clave privada permanece en Firebase. `VITE_FIREBASE_VAPID_KEY` permite sobrescribir la pública para otro proyecto; no regeneres el par existente sin planificar la renovación de suscripciones.
+4. Estos identificadores web y VAPID pública se distribuyen al navegador por diseño. **Nunca** pongas una cuenta de servicio, clave privada VAPID, token de GitHub o credencial Admin en ninguna variable `VITE_*`, `public/` o archivo versionado. La protección real depende de reglas y permisos, no de ocultar la configuración web.
+5. Con Firebase CLI instalada y tu sesión autorizada, desde este repositorio ejecuta:
 
 ```sh
-ollama pull qwen2.5:7b
+firebase use --add
+firebase deploy --only firestore:rules,firestore:indexes
+npm run build
+firebase deploy --only hosting
+```
+
+Selecciona únicamente el proyecto TechRadar. Espera a que los índices estén listos. Recompila después de cambiar variables. Hosting es opcional: cualquier alojamiento estático HTTPS puede servir `dist/`, conservando `/sw.js`, el manifiesto y fallback a `index.html`.
+
+## Publicación diaria y secretos de servidor
+
+Sube este repositorio a un **repositorio GitHub independiente**. El remoto origin apunta a https://github.com/rcolomer3/TechRadar.git. En Settings → Secrets and variables → Actions crea `FIREBASE_SERVICE_ACCOUNT` con el JSON de una cuenta de servicio del proyecto TechRadar. Se pasa solo al proceso Node de Actions y no se copia al frontend. Limita sus permisos a acceso Firestore y envío FCM (por ejemplo `roles/datastore.user` y `roles/firebasecloudmessaging.admin`); no concedas Owner. Rota y revoca la clave si se expone. Como mejora posterior, sustituir la clave por Workload Identity Federation.
+
+`.github/workflows/daily.yml` usa `0 19 * * *` con `timezone: Europe/Madrid`: ajusta verano/invierno. GitHub ejecuta schedules en la rama por defecto; puede retrasarlos o desactivarlos por inactividad, por lo que **19:00 es la hora objetivo, no una garantía de entrega exacta**. Existe lanzamiento manual desde Actions. Documentación actual: https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#onschedule .
+
+El proceso descarga RSS de Apple Newsroom, Windows Blog, Firebase y Mozilla. Los hosts permitidos se declaran en `scripts/sources.json`. No sigue instrucciones del contenido. Solo acepta enlaces HTTPS a los hosts de cada fuente, títulos y fecha válida de las últimas 48 horas. Usa extractos de hasta 230 caracteres, limpiando HTML; conserva el idioma original y enlaza la fuente. **No usa una API de IA de pago ni traduce o inventa contenido.** No pretende resumir exhaustivamente un artículo: muestra un extracto atribuido.
+
+Deduplica URL canónica (sin tracking) y título normalizado, incluyendo siete ediciones anteriores. No hace deduplicación semántica entre titulares diferentes. Selecciona hasta ocho por actualidad. Con menos de cinco publica solo las disponibles y marca `belowTarget`; con cero no publica. Si fallan todas las fuentes, falla el job sin publicar. Los errores parciales quedan registrados. Las fuentes RSS pueden cambiar: revisa los fallos de Actions.
+
+Prueba la recopilación sin credenciales ni escritura remota:
+
+```sh
 node scripts/daily.mjs --dry-run
 ```
 
-`--dry-run` no publica ni envía avisos; si existe la credencial de servidor en el entorno, lee el historial para deduplicar. Sin ella, la prueba no puede comprobar repeticiones remotas. `work/digest-preview.json` contiene la edición y `work/editorial-report.json` el diagnóstico, ignorados por Git.
+Resultado en `work/digest-preview.json`, ignorado por Git. La primera ejecución real escribe `digests/YYYY-MM-DD` antes de enviar avisos. Usa creación exclusiva y grupo de concurrencia; los reintentos conservan la edición y consultan un registro de entregas por dispositivo. Una caída después de que FCM acepte un mensaje puede producir un reenvío; el tag de notificación colapsa duplicados visibles. Límite deliberado de 500 dispositivos por ejecución, apropiado para uso personal. Borra tokens rechazados permanentemente. No se envían notificaciones si no existe resumen nuevo.
 
-En GitHub → Actions → Daily radar → Run workflow:
+## Updates y eventos: revisión editorial
 
-- `preview`: prueba real de fuentes y modelo, sin publicar ni notificar.
-- `prepare`: guarda el borrador validado en Firebase.
-- `publish`: publica el borrador del día y avisa una vez; no genera ni altera ediciones ya publicadas.
+`scripts/curated.json` empieza vacío intencionadamente. Las versiones concretas y fechas de evento no se infieren de titulares RSS. Añade entradas únicamente tras consultar el anuncio oficial; el siguiente job las sincroniza con Firestore. Se sincronizan aunque no haya noticias nuevas para el resumen. Esta primera versión no tiene un panel editorial ni scraping automático de versiones.
 
-El artefacto editorial-review conserva durante tres días únicamente el resumen procesado y el informe de cobertura; nunca claves, tokens o artículos originales completos. Un fallo de cobertura/calidad es visible como ejecución fallida, no como una edición vacía exitosa.
+Ejemplo de **estructura**, sin datos de noticias:
 
-## Firebase, PWA y seguridad
+```ts
+type Update = {
+  platform: 'iOS' | 'macOS' | 'Windows' | 'Synology';
+  title: string; summary: string; url: string; publishedAt: string; // ISO UTC
+};
+type Event = {
+  title: string; summary: string; date: string; // YYYY-MM-DD de la fecha anunciada
+  url: string; officialHost: string; confirmed: true;
+};
+```
 
-`firestore.rules` y `firestore.indexes.json` definen el acceso. Clientes no escriben noticias. Solo el propietario autenticado administra sus tokens. `drafts`, `publicationRuns` y `deliveries` quedan privados por denegación por defecto; solo Admin SDK accede. El Admin SDK omite las reglas: proteger el secreto y los permisos de edición del repositorio.
+Hosts de updates validados en `scripts/core.mjs`; eventos requieren hostname oficial explícito revisado. Fuentes sugeridas para revisar: https://support.apple.com/en-us/100100 , https://learn.microsoft.com/en-us/windows/release-health/ , https://www.synology.com/releaseNote/DSM . Actualizar una URL reemplaza su documento; eliminar una entrada del JSON no elimina documentos publicados, que deben retirarse con acceso Admin. No borres evidencia de anuncios históricos por accidente.
 
-Google Authentication requiere el dominio de Pages autorizado (`rcolomer3.github.io`). HTTPS para web push. En iOS/iPadOS 16.4 o posterior: Safari → Compartir → Añadir a pantalla de inicio → abrir la PWA instalada → iniciar sesión y activar avisos desde Ajustes. Se requiere interacción del usuario para el permiso. Concentración, batería, red y ajustes del sistema pueden impedir la recepción. Cerrar sesión no revoca por sí solo una suscripción del dispositivo.
+## Push e instalación en iPhone
 
-Updates y Eventos conservan la revisión editorial de `scripts/curated.json`: solo versiones y lanzamientos respaldados por anuncios oficiales; no se inventan. El modo sin conexión almacena la interfaz, no garantiza disponibilidad de noticias remotas.
+FCM utiliza el service worker propio `/sw.js` y mensajes `data` (sin payload `notification`, para evitar doble aviso). El token se guarda por usuario/dispositivo, con identificador SHA-256. Activa desde el botón después de entrar con Google; Desactivar elimina token local y registro remoto. Reactivar renueva el registro. Cierra sesión después de desactivar avisos si el dispositivo es compartido: cerrar sesión por sí solo no revoca la suscripción del navegador.
+
+En iOS/iPadOS **16.4 o posterior**, abre en Safari → Compartir → Añadir a pantalla de inicio → abre TechRadar desde su icono → entra y pulsa Activar avisos. Debe ser una PWA instalada con `display: standalone`, HTTPS y permiso solicitado mediante interacción directa. Un iPad con identidad de escritorio también se detecta. En otros navegadores se comprueba soporte; permisos denegados se cambian en ajustes del sistema/navegador. Concentración, batería, red o ajustes del sistema pueden impedir o retrasar avisos. La app no promete entrega exacta.
+
+Referencias: https://webkit.org/blog/13878/web-push-for-web-apps-on-ios-and-ipados/ y https://firebase.google.com/docs/cloud-messaging/web/get-started . Prueba real pendiente con proyecto Firebase, dominio HTTPS y dispositivo compatible. Sin esas credenciales, login y push no se simulan como si funcionaran.
+
+## Modelo y seguridad
+
+`src/models.ts`: `Digest` incluye `date`, `publishedAt`, `status` y array de artículos con título, extracto, fuente, URL y fecha original. Colecciones:
+
+| Ruta | Cliente | Escritura |
+| --- | --- | --- |
+| `digests/{fecha}` | Lee solo publicados | Admin de Actions |
+| `updates/{hashURL}` | Lectura pública | Admin de Actions |
+| `events/{hashURL}` | Lee solo confirmados | Admin de Actions |
+| `users/{uid}/tokens/{hash}` | Solo propietario autenticado | Propietario, campos limitados y timestamp servidor |
+| `deliveries/{fecha-dispositivo}` | Ninguno | Admin de Actions |
+
+Las consultas incluyen filtros de publicación/confirmación para coincidir con reglas. Índices compuestos incluidos. Denegación por defecto de cualquier otra ruta. Admin SDK omite las reglas: proteger la cuenta de servicio es esencial. Tokens privados, nunca retornados como parte del resumen ni impresos por el script. Uso personal; antes de abrir registros al público, añadir control de abuso/App Check, límites por usuario y política de retención. Limpia periódicamente registros de entregas y tokens antiguos con Admin para mantener cuotas.
+
+La PWA almacena shell y assets visitados para abrirse sin conexión; los datos Firestore no tienen persistencia offline activada y requieren red al recargar. No cachea respuestas de autenticación. El acceso al archivo se limita a 60 días en cada carga (sin paginación en este MVP).
+
+## Validación y pendientes para producción
+
+Pruebas unitarias locales no requieren Firebase. La compilación valida tipos. Antes del primer despliegue real, comprobar con Emulator Suite las reglas de dos usuarios (nadie escribe resúmenes, solo el propietario gestiona sus tokens), login en dominio autorizado, indexación, ejecución manual de Actions y recepción push en iOS instalado y escritorio. Sin credenciales estas integraciones no pueden certificarse desde la demo.
+
+Firebase: proyecto independiente `techradar-4f238`, Google Authentication habilitado y Firestore Standard en Madrid (`europe-southwest1`), plan Spark sin facturación. La publicación del resumen diario requiere la credencial de servidor indicada. El código se publica en el repositorio público rcolomer3/TechRadar. Nada de WebFinanzas o BandApp se lee o modifica.
+
+## Publicación web automática
+
+GitHub Pages se publica desde `.github/workflows/pages.yml` al actualizar `main`, con la base `/TechRadar/`. Código público autorizado por el propietario; claves privadas y cuentas de servicio siguen excluidas. El proyecto Firebase usa Google Authentication y Firestore en Madrid. Dominio autorizado: `rcolomer3.github.io`. La sesión de Google se conserva en el navegador hasta cerrar sesión. Para ver la demo local, define `VITE_DEMO=true`. La clave pública VAPID ya está configurada para registrar dispositivos. El envío automático del resumen diario todavía requiere la cuenta de servicio; registrar un dispositivo no activa por sí solo ese envío.
