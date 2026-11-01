@@ -37,3 +37,7 @@ Un commit antes de las 19:00 de Madrid guarda un borrador privado. La ejecución
 La edición publicada es inmutable. No cambiarla o reutilizar su fecha para forzar otro aviso. Reintentos no reenvían avisos al mismo dispositivo. Si falla una comprobación, no publicar ni rellenar con extractos RSS. Nunca incluir credenciales, tokens o datos de chats privados en esta carpeta.
 
 La tarea programada debe tener acceso de escritura a rcolomer3/TechRadar y capacidad de usar el plugin GitHub. Una conexión disponible en un chat no demuestra por sí sola que una tarea programada pueda usarla: comprobar una ejecución real.
+
+## Importaciones históricas literales
+
+Un archivo con `archiveImport.mode = "verbatim"` conserva una edición antigua de una tarea de ChatGPT por petición expresa del usuario. Puede tener menos noticias o frases que el contrato de ediciones nuevas: no se añaden noticias, no se reescriben los textos y no se vuelve a investigar para sustituir esa selección. Sus artículos usan `title` y `summary` originales. Se importa de forma controlada y sin avisos, conservando la revisión anterior. El publicador normal mantiene los mínimos de 5–8 noticias y 4–5 frases para las ediciones nuevas. Al deduplicar, también debes consultar estos archivos y sus `storyKey`.
