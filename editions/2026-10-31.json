@@ -3,94 +3,58 @@
   "date": "2026-10-31",
   "language": "es",
   "producer": "chatgpt",
+  "archiveImport": {
+    "mode": "verbatim",
+    "sourceMessageId": "fc9c3d43-e0a2-4cb1-b3cc-76aa09844155",
+    "sourceTextHash": "44fe4de39da6708bd27bb019cc3ee02265e745a2c4f0c7fdd4712b733ff99b20",
+    "sourceCount": 4
+  },
   "articles": [
     {
-      "storyKey": "macos-27-macbook-pro-gestos-pantalla-tactil",
+      "title": "Apple alerta de ataques de espionaje a usuarios de iPhone en 99 países.",
+      "summary": "El 30 de octubre envió notificaciones a personas seleccionadas como objetivos de software espía avanzado. No se trata de una infección generalizada: quienes reciban una alerta auténtica deberían actualizar su iPhone y seguir las recomendaciones de seguridad de Apple.",
+      "storyKey": "apple-spyware-alerts-99-countries-october-2026",
       "category": "Apple",
-      "title": "Así adapta macOS 27 sus controles al MacBook Pro con pantalla táctil",
-      "sentences": [
-        "El MacBook Pro con pantalla táctil incorpora ajustes de macOS 27 para facilitar el manejo directo de ventanas y menús.",
-        "Los controles de las ventanas y los elementos de los menús aumentan su área de interacción al utilizarlos con los dedos.",
-        "La pantalla permite reproducir gestos del trackpad, como ampliar imágenes, cambiar de escritorio o abrir Mission Control.",
-        "También admite controlar con los dedos el simulador de iOS, una mejora práctica para desarrolladores que prueban aplicaciones móviles."
-      ],
       "sources": [
         {
-          "name": "9to5Mac",
-          "url": "https://9to5mac.com/2026/10/31/macbook-pro-touch-optimizations-macos-27-golden-gate",
-          "publishedAt": "2026-10-31T19:49:44.000Z"
+          "name": "CyberScoop",
+          "url": "https://cyberscoop.com/apple-spyware-notifications-pall-mall-process/"
         }
       ]
     },
     {
-      "storyKey": "grok-imagine-odyssey-primer-episodio-video-ia",
-      "category": "Inteligencia artificial",
-      "title": "Grok Imagine estrena un episodio de siete minutos de su serie Odyssey",
-      "sentences": [
-        "Grok Imagine ha publicado en X el primer episodio de una adaptación de La Odisea creada con herramientas de inteligencia artificial.",
-        "El vídeo dura unos siete minutos y acredita la participación creativa de Wonder Studios y del director Dev Walker.",
-        "La entrega inicia una serie y no equivale todavía al largometraje que Elon Musk había anunciado para finales de 2026.",
-        "Aunque el proyecto utiliza la herramienta audiovisual de Grok, su anuncio no detalla qué versión se empleó ni cuánto costaron la producción y el montaje."
-      ],
-      "sources": [
-        {
-          "name": "Genbeta",
-          "url": "https://www.genbeta.com/inteligencia-artificial/grok-elon-musk-lanza-primer-episodio-odyssey-generado-inteligencia-artificial",
-          "publishedAt": "2026-10-31T12:31:27.000Z"
-        }
-      ]
-    },
-    {
-      "storyKey": "chromagraph-camera-rian-johnson-steve-yedlin-iphone",
-      "category": "Lanzamientos",
-      "title": "Chromagraph lleva al iPhone el tratamiento de imagen de los creadores de Knives Out",
-      "sentences": [
-        "El director Rian Johnson ha presentado Chromagraph Camera, una aplicación para iPhone desarrollada con el director de fotografía Steve Yedlin y el especialista Eric Cameron.",
-        "La herramienta parte de datos RAW y utiliza su propio procesamiento de imagen, en lugar de aplicar un filtro sobre una fotografía ya procesada por el teléfono.",
-        "Permite ajustar color, exposición y textura conservando los archivos originales, y muestra el resultado visual después de tomar la fotografía.",
-        "La aplicación se ofrece por 12,99 dólares, sin compras integradas, y permite exportar imágenes con su tratamiento a formatos como JPEG o HEIC."
-      ],
-      "sources": [
-        {
-          "name": "9to5Mac",
-          "url": "https://9to5mac.com/2026/10/30/knives-out-director-launches-iphone-camera-app-that-shoots-like-his-movies",
-          "publishedAt": "2026-10-30T20:44:08.000Z"
-        }
-      ]
-    },
-    {
-      "storyKey": "cve-2026-86990-coremedia-permiso-camara-corregido",
+      "title": "Detectan una extensión maliciosa de Claude Code en Cursor.",
+      "summary": "Una versión manipulada estuvo disponible durante unas 11 horas el 29 de octubre y pudo descargarse en hasta 5.000 equipos. El malware pretendía abrir una puerta trasera, aunque un fallo limitó su funcionamiento; los usuarios afectados deben seguir las instrucciones de Cursor.",
+      "storyKey": "cursor-claude-code-extension-supply-chain-attack",
       "category": "Seguridad",
-      "title": "Un fallo corregido en iOS y macOS permitía saltarse el permiso de la cámara",
-      "sentences": [
-        "Una vulnerabilidad de CoreMedia corregida por Apple podía permitir que una aplicación maliciosa accediera a la cámara sin obtener el permiso del usuario.",
-        "El problema afectaba a las restricciones de acceso del software y no al mecanismo que muestra el indicador de cámara en funcionamiento.",
-        "Según la información publicada, Apple no había comunicado indicios de que este fallo se hubiera explotado activamente.",
-        "La corrección está incluida en las actualizaciones de iOS y macOS citadas por la fuente, que también recomienda revisar qué aplicaciones conservan permisos de cámara."
-      ],
-      "sources": [
-        {
-          "name": "9to5Mac",
-          "url": "https://9to5mac.com/2026/10/30/security-bite-this-ios-27-2-camera-bug-still-isnt-enough-to-make-me-buy-a-camera-cover",
-          "publishedAt": "2026-10-30T19:01:14.000Z"
-        }
-      ]
-    },
-    {
-      "storyKey": "apple-john-ternus-ia-integracion-productos-entrevista-wired",
-      "category": "Apple",
-      "title": "Apple defiende integrar la IA en sus productos sin convertirla en protagonista",
-      "sentences": [
-        "John Ternus, consejero delegado de Apple, explicó en una entrevista con WIRED que la compañía prioriza mejorar sus productos frente a añadir IA por moda.",
-        "Su objetivo es que las personas aprovechen esas mejoras sin necesitar distinguir qué funciones utilizan inteligencia artificial.",
-        "Ante la posibilidad de que agentes sustituyan a las aplicaciones, defendió el componente humano del diseño de productos.",
-        "También destacó la seguridad y la protección de los datos de los usuarios."
-      ],
       "sources": [
         {
           "name": "WIRED",
-          "url": "https://www.wired.com/story/i-spent-30-minutes-with-apples-ceo-now-i-know-why-john-ternus-got-the-job/",
-          "publishedAt": "2026-10-30"
+          "url": "https://www.wired.com/story/trojan-malware-targets-thousands-of-anthropic-claude-developer-systems/"
+        }
+      ]
+    },
+    {
+      "title": "OpenAI, Google, Microsoft y Anthropic acuerdan un estándar para controlar el uso de contenidos por IA.",
+      "summary": "Anunciado el 30 de octubre, permitirá a los propietarios de webs indicar desde robots.txt que no quieren que sus contenidos se utilicen para entrenar modelos. Anthropic ya lo admite y las demás compañías lo incorporarán progresivamente.",
+      "storyKey": "ai-crawler-policy-token-robots-txt",
+      "category": "Inteligencia artificial",
+      "sources": [
+        {
+          "name": "The Verge",
+          "url": "https://www.theverge.com/tech/1023763/openai-google-microsoft-ai-scraping-standard-opt-out"
+        }
+      ]
+    },
+    {
+      "title": "Amazon presenta cinco nuevos dispositivos Echo.",
+      "summary": "Entre los lanzamientos de esta semana destacan Echo Show 16, Echo Time y Echo Studio con cámara. Alexa+ también incorpora conversaciones que pueden retomarse entre dispositivos y nuevas funciones de control del hogar, acercándose a un asistente doméstico más completo.",
+      "storyKey": "amazon-echo-five-devices-alexa-plus-october-2026",
+      "category": "Lanzamientos",
+      "sources": [
+        {
+          "name": "The Verge",
+          "url": "https://www.theverge.com/tech/1020388/inside-amazons-echo-hardware-event"
         }
       ]
     }
